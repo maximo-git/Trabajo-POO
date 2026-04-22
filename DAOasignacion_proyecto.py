@@ -17,11 +17,11 @@ class DAOAsignacionProyecto:
         finally:
             self.__conexion.desconectar()
 
-    def desasignar_empleado(self, id_trabajador, id_proyecto):
+    def desasignar_empleado(self, id_empleado, id_proyecto):
         try:
             self.__conexion.conectar()
-            sql = "DELETE FROM trabajadores_proyectos WHERE idtrabajador = %s AND idproyecto = %s"
-            self.__conexion._conexion__cursor.execute(sql, (id_trabajador, id_proyecto))
+            sql = "DELETE FROM empleados_proyectos WHERE idempleado = %s AND idproyecto = %s"
+            self.__conexion._conexion__cursor.execute(sql, (id_empleado, id_proyecto))
             self.__conexion._conexion__conexion.commit()
             return "Empleado desasignado del proyecto exitosamente."
         except Exception as ex:
@@ -32,10 +32,11 @@ class DAOAsignacionProyecto:
     def listar_asignaciones(self):
         try:
             self.__conexion.conectar()
+            #revisaaaar
             sql = """
                 SELECT t.nombre as empleado, p.nombre as proyecto 
-                FROM trabajadores t 
-                JOIN trabajadores_proyectos tp ON t.idtrabajador = tp.idtrabajador 
+                FROM empleados 
+                JOIN empleados_proyectos tp ON e.idempleado = ep.idempleado 
                 JOIN proyectos p ON tp.idproyecto = p.idproyecto
             """
             self.__conexion._conexion__cursor.execute(sql)

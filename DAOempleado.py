@@ -8,7 +8,7 @@ class DAOempleado:
     def registrar(self, e: empleado):
         try:
             self.__conexion.conectar()
-            sql = "INSERT INTO trabajadores (nombre, direccion, telefono, email, fecha_inicio, salario) VALUES (%s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO empleados (nombre, direccion, telefono, email, fecha_inicio, salario) VALUES (%s, %s, %s, %s, %s, %s)"
             param = (e.get_nombre(), e.get_direccion(), e.get_telefono(), e.get_email(), e.get_fecha_inicio(), e.get_salario())
             self.__conexion._conexion__cursor.execute(sql, param)
             self.__conexion._conexion__conexion.commit()
@@ -21,7 +21,7 @@ class DAOempleado:
     def actualizar(self, e: empleado, id_empleado):
         try:
             self.__conexion.conectar()
-            sql = "UPDATE trabajadores SET nombre=%s, direccion=%s, telefono=%s, email=%s, fecha_inicio=%s, salario=%s WHERE idtrabajador=%s"
+            sql = "UPDATE empleados SET nombre=%s, direccion=%s, telefono=%s, email=%s, fecha_inicio=%s, salario=%s WHERE idempleado=%s"
             param = (e.get_nombre(), e.get_direccion(), e.get_telefono(), e.get_email(), e.get_fecha_inicio(), e.get_salario(), id_empleado)
             self.__conexion._conexion__cursor.execute(sql, param)
             self.__conexion._conexion__conexion.commit()
@@ -34,7 +34,7 @@ class DAOempleado:
     def eliminar(self, id_empleado):
         try:
             self.__conexion.conectar()
-            sql = "DELETE FROM trabajadores WHERE idtrabajador = %s"
+            sql = "DELETE FROM empleados WHERE idempleado = %s"
             self.__conexion._conexion__cursor.execute(sql, (id_empleado,))
             self.__conexion._conexion__conexion.commit()
             return "Empleado eliminado exitosamente."
@@ -46,7 +46,7 @@ class DAOempleado:
     def lista(self):
         try:
             self.__conexion.conectar()
-            sql = "SELECT * FROM trabajadores"
+            sql = "SELECT * FROM empleados"
             self.__conexion._conexion__cursor.execute(sql)
             resultado = self.__conexion._conexion__cursor.fetchall()
             return resultado
