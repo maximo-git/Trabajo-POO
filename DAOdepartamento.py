@@ -1,12 +1,12 @@
 from conexion import conexion
-from departamento import departamento
+from departamentos import departamentos
 
 class DAOdepartamento:
 
     def __init__(self):
         self.__conexion = conexion()
 
-    def registrar(self, d: departamento):
+    def registrar(self, d: departamentos):
         self.__conexion.conectar()
         sql = "INSERT INTO departamento (nombre, descripcion, personacargo, cantidadpersonas) VALUES (%s, %s, %s, %s)"
         param = (d.get_nombre(), d.get_descripcion(), d.get_personacargo(), d.get_cantidadpersonas())
@@ -14,7 +14,7 @@ class DAOdepartamento:
         self.__conexion._conexion__conexion.commit()
         self.__conexion.desconectar()
 
-    def actualizar(self, d: departamento):
+    def actualizar(self, d: departamentos):
         self.__conexion.conectar()
         sql = "UPDATE departamento SET nombre=%s, descripcion=%s, personacargo=%s, cantidadpersonas=%s WHERE iddepartamento=%s"
         param = (d.get_nombre(), d.get_descripcion(), d.get_personacargo(), d.get_cantidadpersonas())
