@@ -4,12 +4,12 @@ class DAOAsignacionProyecto:
     def __init__(self):
         self.__conexion = conexion()
 
-    def asignar_empleado(self, id_trabajador, id_proyecto):
+    def asignar_empleado(self, id_empleado, id_proyecto):
         try:
             self.__conexion.conectar()
-            # Asumiendo que la tabla intermedia se llamara 'trabajadores_proyectos' o si ni cambiar 
-            sql = "INSERT INTO trabajadores_proyectos (idtrabajador, idproyecto) VALUES (%s, %s)"
-            self.__conexion._conexion__cursor.execute(sql, (id_trabajador, id_proyecto))
+            # Asumiendo que la tabla intermedia se llamara 'empleados_proyectos' o si ni cambiar 
+            sql = "INSERT INTO empleados_proyectos (idempleado, idproyecto) VALUES (%s, %s)"
+            self.__conexion._conexion__cursor.execute(sql, (id_empleado, id_proyecto))
             self.__conexion._conexion__conexion.commit()
             return "Empleado asignado al proyecto exitosamente."
         except Exception as ex:
