@@ -7,7 +7,6 @@ class DAOAsignacionProyecto:
     def asignar_empleado(self, id_empleado, id_proyecto):
         try:
             self.__conexion.conectar()
-            # Asumiendo que la tabla intermedia se llamara 'empleados_proyectos' o si ni cambiar 
             sql = "INSERT INTO empleados_proyectos (idempleado, idproyecto) VALUES (%s, %s)"
             self.__conexion._conexion__cursor.execute(sql, (id_empleado, id_proyecto))
             self.__conexion._conexion__conexion.commit()
@@ -32,12 +31,11 @@ class DAOAsignacionProyecto:
     def listar_asignaciones(self):
         try:
             self.__conexion.conectar()
-            #revisaaaar
             sql = """
-                SELECT t.nombre as empleado, p.nombre as proyecto 
-                FROM empleados 
-                JOIN empleados_proyectos tp ON e.idempleado = ep.idempleado 
-                JOIN proyectos p ON tp.idproyecto = p.idproyecto
+                SELECT e.nombre as empleado, p.nombre as proyecto 
+                FROM empleados e 
+                JOIN empleados_proyectos ep ON e.idempleado = ep.idempleado 
+                JOIN proyectos p ON ep.idproyecto = p.idproyecto
             """
             self.__conexion._conexion__cursor.execute(sql)
             resultado = self.__conexion._conexion__cursor.fetchall()
