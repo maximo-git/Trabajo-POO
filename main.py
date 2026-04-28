@@ -14,251 +14,259 @@ dao_dep = DAOdepartamento()
 dao_proy = DAOproyecto()
 dao_tiempo = DAORegistroTiempo()
 
-class SistemaGestionEcoTech:
+class EcoTechApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("EcoTech Solutions - Sistema de Gestión")
-        self.root.geometry("700x600")
-        self.root.configure(bg="#1a1a1a")
+        self.root.title("EcoTech Solutions")
+        self.root.geometry("1000x700")
+        self.root.configure(bg="#f0f0f0")
         
+        # Estilos para las tablas
         self.style = ttk.Style()
         self.style.theme_use('clam')
+        self.style.configure("Treeview", background="#ffffff", foreground="#000000", fieldbackground="#ffffff", font=("Arial", 10))
+        self.style.configure("Treeview.Heading", font=("Arial", 10, "bold"), background="#cc0000", foreground="white")
+        self.style.map("Treeview", background=[('selected', '#cc0000')])
+
+        # --- ESTRUCTURA PRINCIPAL (Ventana Única) ---
         
-        self.crear_menu_principal()
-    
-    def limpiar_ventana(self):
-        for widget in self.root.winfo_children():
+        # 1. Panel Lateral (Menú de navegación)
+        self.sidebar = tk.Frame(self.root, bg="#1a1a1a", width=250)
+        self.sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        self.sidebar.pack_propagate(False) # Evita que se encoja
+        
+        # Logo/Título en Sidebar
+        tk.Label(self.sidebar, text="ECOTECH", bg="#1a1a1a", fg="#cc0000", font=("Arial", 20, "bold"), pady=20).pack()
+        tk.Label(self.sidebar, text="Solutions", bg="#1a1a1a", fg="white", font=("Arial", 12)).pack()
+        
+        tk.Frame(self.sidebar, bg="#333333", height=2).pack(fill=tk.X, pady=20)
+
+        # Botones del Sidebar
+        self.crear_boton_sidebar("👥 Empleados", self.show_empleados)
+        self.crear_boton_sidebar("🏢 Departamentos", self.show_departamentos)
+        self.crear_boton_sidebar("📁 Proyectos", self.show_proyectos)
+        self.crear_boton_sidebar("⏱️ Registro de Tiempo", self.show_tiempo)
+        
+        tk.Frame(self.sidebar, bg="#1a1a1a").pack(expand=True) # Espaciador
+        
+        self.crear_boton_sidebar("🚪 Salir", self.root.quit, color="#333333")
+
+        # 2. Área de Contenido Principal
+        self.main_content = tk.Frame(self.root, bg="white")
+        self.main_content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Mostrar bienvenida al inicio
+        self.show_welcome()
+
+    def crear_boton_sidebar(self, texto, comando, color="#1a1a1a"):
+        btn = tk.Button(self.sidebar, text=texto, command=comando, 
+                      bg=color, fg="white", font=("Arial", 11, "bold"),
+                      relief=tk.FLAT, pady=15, cursor="hand2", 
+                      activebackground="#cc0000", activeforeground="white",
+                      highlightbackground="#1a1a1a", anchor="w", padx=20)
+        btn.pack(fill=tk.X)
+
+    def clear_main(self):
+        """Limpia el área de contenido principal."""
+        for widget in self.main_content.winfo_children():
             widget.destroy()
 
-    def crear_menu_principal(self):
-        self.limpiar_ventana()
+    def show_welcome(self):
+        self.clear_main()
+        tk.Label(self.main_content, text="Bienvenido al Sistema de Gestión", bg="white", fg="#333333", font=("Arial", 22, "bold"), pady=50).pack()
+        tk.Label(self.main_content, text="Seleccione una opción del menú lateral para comenzar.", bg="white", fg="#666666", font=("Arial", 14)).pack()
         
+        # Imagen decorativa o logo grande
+        tk.Label(self.main_content, text="🏢", bg="white", font=("Arial", 100)).pack(pady=50)
 
-        frame_header = tk.Frame(self.root, bg="#cc0000", height=100)
-        frame_header.pack(fill=tk.X)
+    # --- SECCIÓN EMPLEADOS ---
+    def show_empleados(self):
+        self.clear_main()
+        self.header_seccion("Gestión de Empleados")
         
-        tk.Label(frame_header, text="ECOTECH SOLUTIONS", bg="#cc0000", fg="white", 
-                 font=("Arial", 24, "bold"), pady=30).pack()
-        
-        frame_main = tk.Frame(self.root, bg="#1a1a1a")
-        frame_main.pack(expand=True, fill=tk.BOTH)
-        
-        tk.Label(frame_main, text="PANEL DE ADMINISTRACIÓN", bg="#1a1a1a", fg="#ffffff", 
-                 font=("Arial", 14, "bold")).pack(pady=20)
-        
-        opciones = [
-            ("👥 GESTIÓN DE EMPLEADOS", self.menu_empleados),
-            ("🏢 GESTIÓN DE DEPARTAMENTOS", self.menu_departamentos),
-            ("📁 GESTIÓN DE PROYECTOS", self.menu_proyectos),
-            ("⏱️ REGISTRO DE TIEMPO", self.menu_registro_tiempo),
-            ("🚪 SALIR", self.root.quit)
-        ]
-        
-        for texto, comando in opciones:
-            btn = tk.Button(frame_main, text=texto, command=comando, width=35, height=2,
-                          bg="#cc0000", fg="white", font=("Arial", 11, "bold"),
-                          highlightbackground="#1a1a1a") # Necesario para Mac
-            btn.pack(pady=10)
-
-    def menu_empleados(self):
-        self.limpiar_ventana()
-        self.header_secundario("GESTIÓN DE EMPLEADOS")
-        
-        frame_body = tk.Frame(self.root, bg="#1a1a1a")
-        frame_body.pack(expand=True)
-        
-        tk.Button(frame_body, text="Registrar Nuevo Empleado", command=self.form_empleado, 
-                 width=30, height=2, bg="#cc0000", fg="white", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Ver Lista de Empleados", command=self.listar_empleados, 
-                 width=30, height=2, bg="white", fg="black", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Volver al Menú", command=self.crear_menu_principal, 
-                 width=30, height=2, bg="#333333", fg="white", font=("Arial", 11), highlightbackground="#1a1a1a").pack(pady=20)
-
-    def form_empleado(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Nuevo Empleado")
-        ventana.geometry("500x500")
-        ventana.configure(bg="white")
-        ventana.lift()
-        ventana.focus_force()
-        
-        tk.Label(ventana, text="DATOS DEL EMPLEADO", bg="#cc0000", fg="white", font=("Arial", 14, "bold"), pady=15).pack(fill=tk.X)
-        
-        container = tk.Frame(ventana, bg="white", padx=40, pady=30)
-        container.pack(fill=tk.BOTH, expand=True)
+        # Panel superior: Formulario
+        form_frame = tk.LabelFrame(self.main_content, text=" Registrar Nuevo Empleado ", bg="white", font=("Arial", 10, "bold"), padx=20, pady=20)
+        form_frame.pack(fill=tk.X, padx=20, pady=10)
         
         campos = ["Nombre", "Dirección", "Teléfono", "Email", "Fecha Inicio", "Salario"]
-        entradas = {}
+        self.ents_emp = {}
         
+        # Grid para el formulario (2 columnas)
         for i, campo in enumerate(campos):
-            lbl = tk.Label(container, text=campo + ":", bg="white", fg="black", font=("Arial", 11, "bold"), anchor="w")
-            lbl.grid(row=i, column=0, pady=10, sticky="w")
+            r, c = i // 3, (i % 3) * 2
+            tk.Label(form_frame, text=campo + ":", bg="white", font=("Arial", 10)).grid(row=r, column=c, sticky="w", pady=5, padx=5)
+            ent = tk.Entry(form_frame, width=20, bg="#f9f9f9")
+            ent.grid(row=r, column=c+1, pady=5, padx=5)
+            self.ents_emp[campo] = ent
             
-            ent = tk.Entry(container, font=("Arial", 11), bg="#f0f0f0", fg="black", width=25, highlightthickness=1)
-            ent.grid(row=i, column=1, pady=10, padx=10, sticky="ew")
-            entradas[campo] = ent
+        tk.Button(form_frame, text="Guardar Empleado", bg="#cc0000", fg="white", font=("Arial", 10, "bold"), 
+                 command=self.save_empleado, padx=20, highlightbackground="white").grid(row=2, column=0, columnspan=6, pady=15)
 
-        def guardar():
-            try:
-                n, d, t, e, f, s = [entradas[c].get() for c in campos]
-                if not all([n, d, t, e, f, s]):
-                    messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
-                    return
-                nuevo = empleado(n, d, t, e, f, float(s))
-                res = dao_emp.registrar(nuevo)
-                messagebox.showinfo("Sistema", res)
-                ventana.destroy()
-            except ValueError:
-                messagebox.showerror("Error", "El salario debe ser un número.")
+        # Panel inferior: Lista
+        list_frame = tk.Frame(self.main_content, bg="white")
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        cols = ("ID", "Nombre", "Dirección", "Teléfono", "Email", "Salario")
+        self.tree_emp = ttk.Treeview(list_frame, columns=cols, show="headings")
+        for col in cols:
+            self.tree_emp.heading(col, text=col)
+            self.tree_emp.column(col, width=100)
+        
+        self.tree_emp.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        scroll = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.tree_emp.yview)
+        self.tree_emp.configure(yscroll=scroll.set)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        self.refresh_empleados()
 
-        btn_guardar = tk.Button(ventana, text="GUARDAR REGISTRO", command=guardar, bg="#cc0000", fg="white", font=("Arial", 12, "bold"), pady=10, highlightbackground="white")
-        btn_guardar.pack(fill=tk.X, side=tk.BOTTOM, padx=20, pady=20)
-
-    def menu_departamentos(self):
-        self.limpiar_ventana()
-        self.header_secundario("GESTIÓN DE DEPARTAMENTOS")
-        frame_body = tk.Frame(self.root, bg="#1a1a1a")
-        frame_body.pack(expand=True)
-        tk.Button(frame_body, text="Crear Departamento", command=self.form_departamento, width=30, height=2, bg="#cc0000", fg="white", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Ver Departamentos", command=self.listar_departamentos, width=30, height=2, bg="white", fg="black", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Volver", command=self.crear_menu_principal, width=30, height=2, bg="#333333", fg="white", font=("Arial", 11), highlightbackground="#1a1a1a").pack(pady=20)
-
-    def form_departamento(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Nuevo Departamento")
-        ventana.geometry("500x400")
-        ventana.configure(bg="white")
-        tk.Label(ventana, text="DATOS DEL DEPARTAMENTO", bg="#cc0000", fg="white", font=("Arial", 14, "bold"), pady=15).pack(fill=tk.X)
-        container = tk.Frame(ventana, bg="white", padx=40, pady=30)
-        container.pack(fill=tk.BOTH, expand=True)
-        campos = ["Nombre", "Descripción", "Gerente", "Cant. Personas"]
-        entradas = {}
-        for i, campo in enumerate(campos):
-            tk.Label(container, text=campo + ":", bg="white", fg="black", font=("Arial", 11, "bold")).grid(row=i, column=0, pady=10, sticky="w")
-            ent = tk.Entry(container, font=("Arial", 11), bg="#f0f0f0", fg="black", width=25)
-            ent.grid(row=i, column=1, pady=10, padx=10)
-            entradas[campo] = ent
-        def guardar():
-            try:
-                n, d, g, c = [entradas[ca].get() for ca in campos]
-                if not all([n, d, g, c]):
-                    messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
-                    return
-                nuevo = departamentos(n, d, g, int(c))
-                res = dao_dep.registrar(nuevo)
-                messagebox.showinfo("Sistema", res)
-                ventana.destroy()
-            except ValueError:
-                messagebox.showerror("Error", "La cantidad debe ser un número entero.")
-        tk.Button(ventana, text="GUARDAR DEPARTAMENTO", command=guardar, bg="#cc0000", fg="white", font=("Arial", 12, "bold"), pady=10, highlightbackground="white").pack(fill=tk.X, side=tk.BOTTOM, padx=20, pady=20)
-
-    def menu_proyectos(self):
-        self.limpiar_ventana()
-        self.header_secundario("GESTIÓN DE PROYECTOS")
-        frame_body = tk.Frame(self.root, bg="#1a1a1a")
-        frame_body.pack(expand=True)
-        tk.Button(frame_body, text="Nuevo Proyecto", command=self.form_proyecto, width=30, height=2, bg="#cc0000", fg="white", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Ver Proyectos", command=self.listar_proyectos, width=30, height=2, bg="white", fg="black", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Volver", command=self.crear_menu_principal, width=30, height=2, bg="#333333", fg="white", font=("Arial", 11), highlightbackground="#1a1a1a").pack(pady=20)
-
-    def form_proyecto(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Nuevo Proyecto")
-        ventana.geometry("500x350")
-        ventana.configure(bg="white")
-        tk.Label(ventana, text="DATOS DEL PROYECTO", bg="#cc0000", fg="white", font=("Arial", 14, "bold"), pady=15).pack(fill=tk.X)
-        container = tk.Frame(ventana, bg="white", padx=40, pady=30)
-        container.pack(fill=tk.BOTH, expand=True)
-        campos = ["Nombre", "Descripción", "Fecha Inicio"]
-        entradas = {}
-        for i, campo in enumerate(campos):
-            tk.Label(container, text=campo + ":", bg="white", fg="black", font=("Arial", 11, "bold")).grid(row=i, column=0, pady=10, sticky="w")
-            ent = tk.Entry(container, font=("Arial", 11), bg="#f0f0f0", fg="black", width=25)
-            ent.grid(row=i, column=1, pady=10, padx=10)
-            entradas[campo] = ent
-        def guardar():
-            n, d, f = [entradas[ca].get() for ca in campos]
-            if not all([n, d, f]):
-                messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
+    def save_empleado(self):
+        try:
+            data = {c: self.ents_emp[c].get() for c in self.ents_emp}
+            if not all(data.values()):
+                messagebox.showwarning("Aviso", "Todos los campos son obligatorios.")
                 return
-            nuevo = proyecto(n, d, f)
-            res = dao_proy.registrar(nuevo)
-            messagebox.showinfo("Sistema", res)
-            ventana.destroy()
-        tk.Button(ventana, text="GUARDAR PROYECTO", command=guardar, bg="#cc0000", fg="white", font=("Arial", 12, "bold"), pady=10, highlightbackground="white").pack(fill=tk.X, side=tk.BOTTOM, padx=20, pady=20)
+            nuevo = empleado(data["Nombre"], data["Dirección"], data["Teléfono"], data["Email"], data["Fecha Inicio"], float(data["Salario"]))
+            res = dao_emp.registrar(nuevo)
+            messagebox.showinfo("Éxito", res)
+            self.refresh_empleados()
+            for e in self.ents_emp.values(): e.delete(0, tk.END)
+        except ValueError:
+            messagebox.showerror("Error", "El salario debe ser un número.")
 
+    def refresh_empleados(self):
+        for item in self.tree_emp.get_children(): self.tree_emp.delete(item)
+        for d in dao_emp.lista(): self.tree_emp.insert("", tk.END, values=d)
 
-    def menu_registro_tiempo(self):
-        self.limpiar_ventana()
-        self.header_secundario("REGISTRO DE TIEMPO")
-        frame_body = tk.Frame(self.root, bg="#1a1a1a")
-        frame_body.pack(expand=True)
-        tk.Button(frame_body, text="Registrar Horas", command=self.form_tiempo, width=30, height=2, bg="#cc0000", fg="white", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Ver Historial", command=self.listar_tiempos, width=30, height=2, bg="white", fg="black", font=("Arial", 11, "bold"), highlightbackground="#1a1a1a").pack(pady=10)
-        tk.Button(frame_body, text="Volver", command=self.crear_menu_principal, width=30, height=2, bg="#333333", fg="white", font=("Arial", 11), highlightbackground="#1a1a1a").pack(pady=20)
-
-    def form_tiempo(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Registrar Horas")
-        ventana.geometry("500x450")
-        ventana.configure(bg="white")
-        tk.Label(ventana, text="REGISTRO DE HORAS", bg="#cc0000", fg="white", font=("Arial", 14, "bold"), pady=15).pack(fill=tk.X)
-        container = tk.Frame(ventana, bg="white", padx=40, pady=30)
-        container.pack(fill=tk.BOTH, expand=True)
-        campos = ["Empleado", "Proyecto", "Fecha", "Horas", "Descripción"]
-        entradas = {}
+    # --- SECCIÓN DEPARTAMENTOS ---
+    def show_departamentos(self):
+        self.clear_main()
+        self.header_seccion("Gestión de Departamentos")
+        
+        form_frame = tk.LabelFrame(self.main_content, text=" Crear Departamento ", bg="white", font=("Arial", 10, "bold"), padx=20, pady=20)
+        form_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        campos = ["Nombre", "Descripción", "Gerente", "Cant. Personas"]
+        self.ents_dep = {}
         for i, campo in enumerate(campos):
-            tk.Label(container, text=campo + ":", bg="white", fg="black", font=("Arial", 11, "bold")).grid(row=i, column=0, pady=10, sticky="w")
-            ent = tk.Entry(container, font=("Arial", 11), bg="#f0f0f0", fg="black", width=25)
-            ent.grid(row=i, column=1, pady=10, padx=10)
-            entradas[campo] = ent
-        def guardar():
-            try:
-                e, p, f, h, d = [entradas[ca].get() for ca in campos]
-                if not all([e, p, f, h, d]):
-                    messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
-                    return
-                nuevo = RegistroTiempo(e, p, f, float(h), d)
-                res = dao_tiempo.registrar(nuevo, dao_emp.lista(), dao_proy.lista())
-                messagebox.showinfo("Sistema", res)
-                ventana.destroy()
-            except ValueError:
-                messagebox.showerror("Error", "Las horas deben ser un número.")
-        tk.Button(ventana, text="GUARDAR REGISTRO", command=guardar, bg="#cc0000", fg="white", font=("Arial", 12, "bold"), pady=10, highlightbackground="white").pack(fill=tk.X, side=tk.BOTTOM, padx=20, pady=20)
+            tk.Label(form_frame, text=campo + ":", bg="white").grid(row=0, column=i*2, padx=5, pady=5)
+            ent = tk.Entry(form_frame, width=15, bg="#f9f9f9")
+            ent.grid(row=0, column=i*2+1, padx=5, pady=5)
+            self.ents_dep[campo] = ent
+            
+        tk.Button(form_frame, text="Crear", bg="#cc0000", fg="white", command=self.save_dep, highlightbackground="white").grid(row=1, column=0, columnspan=8, pady=10)
 
+        list_frame = tk.Frame(self.main_content, bg="white")
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        
+        cols = ("ID", "Nombre", "Descripción", "Gerente", "Personas")
+        self.tree_dep = ttk.Treeview(list_frame, columns=cols, show="headings")
+        for col in cols: self.tree_dep.heading(col, text=col); self.tree_dep.column(col, width=120)
+        self.tree_dep.pack(fill=tk.BOTH, expand=True)
+        self.refresh_dep()
 
-    def listar_empleados(self):
-        self.ventana_lista("LISTA DE EMPLEADOS", ("ID", "Nombre", "Direccion", "Teléfono", "Email", "Salario"), dao_emp.lista())
+    def save_dep(self):
+        try:
+            d = {c: self.ents_dep[c].get() for c in self.ents_dep}
+            if not all(d.values()): return
+            nuevo = departamentos(d["Nombre"], d["Descripción"], d["Gerente"], int(d["Cant. Personas"]))
+            dao_dep.registrar(nuevo)
+            self.refresh_dep()
+            for e in self.ents_dep.values(): e.delete(0, tk.END)
+        except: messagebox.showerror("Error", "Dato inválido")
 
-    def listar_departamentos(self):
-        self.ventana_lista("LISTA DE DEPARTAMENTOS", ("ID", "Nombre", "Descripción", "Gerente", "Personas"), dao_dep.lista())
+    def refresh_dep(self):
+        for item in self.tree_dep.get_children(): self.tree_dep.delete(item)
+        for d in dao_dep.lista(): self.tree_dep.insert("", tk.END, values=d)
 
-    def listar_proyectos(self):
-        self.ventana_lista("LISTA DE PROYECTOS", ("ID", "Nombre", "Descripción", "Inicio"), dao_proy.lista())
+    # --- SECCIÓN PROYECTOS ---
+    def show_proyectos(self):
+        self.clear_main()
+        self.header_seccion("Gestión de Proyectos")
+        
+        form_frame = tk.LabelFrame(self.main_content, text=" Nuevo Proyecto ", bg="white", font=("Arial", 10, "bold"), padx=20, pady=20)
+        form_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        campos = ["Nombre", "Descripción", "Fecha Inicio"]
+        self.ents_proy = {}
+        for i, campo in enumerate(campos):
+            tk.Label(form_frame, text=campo + ":", bg="white").grid(row=0, column=i*2, padx=5, pady=5)
+            ent = tk.Entry(form_frame, width=20, bg="#f9f9f9")
+            ent.grid(row=0, column=i*2+1, padx=5, pady=5)
+            self.ents_proy[campo] = ent
+        
+        tk.Button(form_frame, text="Guardar Proyecto", bg="#cc0000", fg="white", command=self.save_proy, highlightbackground="white").grid(row=1, column=0, columnspan=6, pady=10)
 
-    def listar_tiempos(self):
-        datos = [(r.get_id_empleado(), r.get_id_proyecto(), r.get_fecha(), r.get_horas_trabajadas(), r.get_descripcion()) for r in dao_tiempo.listar()]
-        self.ventana_lista("HISTORIAL DE TIEMPO", ("Empleado", "Proyecto", "Fecha", "Horas", "Tarea"), datos)
+        list_frame = tk.Frame(self.main_content, bg="white")
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        cols = ("ID", "Nombre", "Descripción", "Inicio")
+        self.tree_proy = ttk.Treeview(list_frame, columns=cols, show="headings")
+        for col in cols: self.tree_proy.heading(col, text=col); self.tree_proy.column(col, width=150)
+        self.tree_proy.pack(fill=tk.BOTH, expand=True)
+        self.refresh_proy()
 
-    def ventana_lista(self, titulo, columnas, datos):
-        ventana = tk.Toplevel(self.root)
-        ventana.title(titulo)
-        ventana.geometry("800x400")
-        tk.Label(ventana, text=titulo, bg="#cc0000", fg="white", font=("Arial", 12, "bold"), pady=10).pack(fill=tk.X)
-        tree = ttk.Treeview(ventana, columns=columnas, show="headings")
-        for col in columnas:
-            tree.heading(col, text=col)
-            tree.column(col, width=100)
-        for d in datos:
-            tree.insert("", tk.END, values=d)
-        tree.pack(fill=tk.BOTH, expand=True)
+    def save_proy(self):
+        d = {c: self.ents_proy[c].get() for c in self.ents_proy}
+        if not all(d.values()): return
+        nuevo = proyecto(d["Nombre"], d["Descripción"], d["Fecha Inicio"])
+        dao_proy.registrar(nuevo)
+        self.refresh_proy()
+        for e in self.ents_proy.values(): e.delete(0, tk.END)
 
-    def header_secundario(self, titulo):
-        frame_h = tk.Frame(self.root, bg="#cc0000", height=60)
-        frame_h.pack(fill=tk.X)
-        tk.Label(frame_h, text=titulo, bg="#cc0000", fg="white", font=("Arial", 16, "bold"), pady=20).pack()
+    def refresh_proy(self):
+        for item in self.tree_proy.get_children(): self.tree_proy.delete(item)
+        for d in dao_proy.lista(): self.tree_proy.insert("", tk.END, values=d)
+
+    # --- SECCIÓN REGISTRO TIEMPO ---
+    def show_tiempo(self):
+        self.clear_main()
+        self.header_seccion("Registro de Tiempo")
+        
+        form_frame = tk.LabelFrame(self.main_content, text=" Registrar Horas ", bg="white", font=("Arial", 10, "bold"), padx=20, pady=20)
+        form_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        campos = ["Empleado", "Proyecto", "Fecha", "Horas", "Descripción"]
+        self.ents_t = {}
+        for i, campo in enumerate(campos):
+            tk.Label(form_frame, text=campo + ":", bg="white").grid(row=0, column=i*2, padx=5, pady=5)
+            ent = tk.Entry(form_frame, width=12, bg="#f9f9f9")
+            ent.grid(row=0, column=i*2+1, padx=5, pady=5)
+            self.ents_t[campo] = ent
+            
+        tk.Button(form_frame, text="Registrar", bg="#cc0000", fg="white", command=self.save_tiempo, highlightbackground="white").grid(row=1, column=0, columnspan=10, pady=10)
+
+        list_frame = tk.Frame(self.main_content, bg="white")
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        cols = ("Empleado", "Proyecto", "Fecha", "Horas", "Tarea")
+        self.tree_t = ttk.Treeview(list_frame, columns=cols, show="headings")
+        for col in cols: self.tree_t.heading(col, text=col); self.tree_t.column(col, width=130)
+        self.tree_t.pack(fill=tk.BOTH, expand=True)
+        self.refresh_tiempo()
+
+    def save_tiempo(self):
+        try:
+            d = {c: self.ents_t[c].get() for c in self.ents_t}
+            if not all(d.values()): return
+            nuevo = RegistroTiempo(d["Empleado"], d["Proyecto"], d["Fecha"], float(d["Horas"]), d["Descripción"])
+            res = dao_tiempo.registrar(nuevo, dao_emp.lista(), dao_proy.lista())
+            messagebox.showinfo("Info", res)
+            self.refresh_tiempo()
+            for e in self.ents_t.values(): e.delete(0, tk.END)
+        except: messagebox.showerror("Error", "Dato inválido")
+
+    def refresh_tiempo(self):
+        for item in self.tree_t.get_children(): self.tree_t.delete(item)
+        for r in dao_tiempo.listar():
+            self.tree_t.insert("", tk.END, values=(r.get_id_empleado(), r.get_id_proyecto(), r.get_fecha(), r.get_horas_trabajadas(), r.get_descripcion()))
+
+    # --- UTILIDADES ---
+    def header_seccion(self, titulo):
+        f = tk.Frame(self.main_content, bg="white", pady=20)
+        f.pack(fill=tk.X)
+        tk.Label(f, text=titulo, bg="white", fg="#333333", font=("Arial", 18, "bold"), padx=20).pack(side=tk.LEFT)
+        tk.Frame(self.main_content, bg="#eeeeee", height=1).pack(fill=tk.X, padx=20)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = SistemaGestionEcoTech(root)
+    app = EcoTechApp(root)
     root.mainloop()
