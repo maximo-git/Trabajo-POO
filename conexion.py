@@ -1,7 +1,7 @@
 import pymysql
 from credencial import credencial as c
 class conexion:
-    def __inst__(self):
+    def __init__(self):
         self .__conexion = None
         self .__cursor = None
 
