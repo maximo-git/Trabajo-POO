@@ -8,10 +8,16 @@ class DAOproyecto:
     def registrar(self, p: proyecto):
         try:
             self.__conexion.conectar()
-            sql = "INSERT INTO proyectos (nombre, descripcion, fecha_inicio) VALUES (%s, %s, %s)"
+            # --- CAMBIO AQUÍ ---
+            cursor = self.__conexion.get_cursor()
+            con = self.__conexion.get_conexion()
+            
+            sql = "INSERT INTO proyecto (nombre, descripcion, fecha_inicio) VALUES (%s, %s, %s)"
             param = (p.get_nombre(), p.get_descripcion(), p.get_fecha_inicio())
-            self.__conexion._conexion__cursor.execute(sql, param)
-            self.__conexion._conexion__conexion.commit()
+            
+            cursor.execute(sql, param)
+            con.commit()
+            # -------------------
             return "Proyecto registrado exitosamente."
         except Exception as ex:
             return f"Error al registrar proyecto: {str(ex)}"
@@ -21,10 +27,16 @@ class DAOproyecto:
     def actualizar(self, p: proyecto, id_proyecto):
         try:
             self.__conexion.conectar()
-            sql = "UPDATE proyectos SET nombre=%s, descripcion=%s, fecha_inicio=%s WHERE idproyecto=%s"
+            # --- CAMBIO AQUÍ ---
+            cursor = self.__conexion.get_cursor()
+            con = self.__conexion.get_conexion()
+            
+            sql = "UPDATE proyecto SET nombre=%s, descripcion=%s, fecha_inicio=%s WHERE idproyecto=%s"
             param = (p.get_nombre(), p.get_descripcion(), p.get_fecha_inicio(), id_proyecto)
-            self.__conexion._conexion__cursor.execute(sql, param)
-            self.__conexion._conexion__conexion.commit()
+            
+            cursor.execute(sql, param)
+            con.commit()
+            # -------------------
             return "Proyecto actualizado exitosamente."
         except Exception as ex:
             return f"Error al actualizar proyecto: {str(ex)}"
@@ -34,9 +46,14 @@ class DAOproyecto:
     def eliminar(self, id_proyecto):
         try:
             self.__conexion.conectar()
-            sql = "DELETE FROM proyectos WHERE idproyecto = %s"
-            self.__conexion._conexion__cursor.execute(sql, (id_proyecto,))
-            self.__conexion._conexion__conexion.commit()
+            # --- CAMBIO AQUÍ ---
+            cursor = self.__conexion.get_cursor()
+            con = self.__conexion.get_conexion()
+            
+            sql = "DELETE FROM proyecto WHERE idproyecto = %s"
+            cursor.execute(sql, (id_proyecto,))
+            con.commit()
+            # -------------------
             return "Proyecto eliminado exitosamente."
         except Exception as ex:
             return f"Error al eliminar proyecto: {str(ex)}"
@@ -46,9 +63,12 @@ class DAOproyecto:
     def lista(self):
         try:
             self.__conexion.conectar()
-            sql = "SELECT * FROM proyectos"
-            self.__conexion._conexion__cursor.execute(sql)
-            resultado = self.__conexion._conexion__cursor.fetchall()
+            # --- CAMBIO AQUÍ ---
+            cursor = self.__conexion.get_cursor()
+            sql = "SELECT * FROM proyecto"
+            cursor.execute(sql)
+            resultado = cursor.fetchall()
+            # -------------------
             return resultado
         except Exception as ex:
             print(f"Error al listar proyectos: {str(ex)}")
