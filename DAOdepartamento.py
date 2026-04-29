@@ -37,6 +37,7 @@ class DAOdepartamento:
             
             cursor.execute(sql, param)
             con.commit()
+            self.__conexion.get_conexion().commit()
             # -------------------
             return "Departamento actualizado exitosamente."
         except Exception as ex:
@@ -54,6 +55,7 @@ class DAOdepartamento:
             sql = "DELETE FROM departamentos WHERE nombre = %s"
             cursor.execute(sql, (nombre,))
             con.commit()
+            self.__conexion.get_conexion().commit()
             # -------------------
             return "Departamento eliminado exitosamente."
         except Exception as ex:

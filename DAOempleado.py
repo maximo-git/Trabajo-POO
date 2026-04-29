@@ -62,16 +62,18 @@ class DAOempleado:
 
     def lista(self):
         try:
-            self.__conexion.conectar()
-            # --- CAMBIO AQUÍ ---
+            self.__conexion.conectar() # Agregué los dos guiones bajos 
+
             cursor = self.__conexion.get_cursor()
-            sql = "SELECT * FROM empleado"
+
+            sql = "SELECT * FROM empleado" 
+
             cursor.execute(sql)
             resultado = cursor.fetchall()
-            # -------------------
-            return resultado
+
+            return resultado # Esto devuelve el diccionario que usaremos en el main.py
         except Exception as ex:
-            print(f"Error al listar empleados: {str(ex)}")
+            print(f"Error al listar: {str(ex)}")
             return []
         finally:
             self.__conexion.desconectar()
